@@ -5,6 +5,13 @@ Checks if all components are configured correctly
 """
 import os
 import sys
+
+if sys.stdout.encoding != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from pathlib import Path
 
 def check_environment():
