@@ -26,6 +26,13 @@ import asyncio
 import json
 import os
 import sys
+
+if sys.stdout.encoding != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from pathlib import Path
 
 from packaging.version import Version
@@ -44,7 +51,7 @@ class ToolRegistry:
     """Danh mục trung tâm — agent tra cứu tool theo tag, tên, hoặc mô tả."""
 
     def __init__(self, path: Path = REGISTRY_PATH) -> None:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         self.tools: dict[str, dict] = data["tools"]
         self.servers: dict[str, dict] = data["servers"]
@@ -99,7 +106,10 @@ async def connect_and_call(match: dict, tool_args: dict) -> str:
             str((REGISTRY_DIR / a).resolve()) if a.endswith(".py") else a
             for a in server.get("args", [])
         ]
-        params = StdioServerParameters(command=command, args=args)
+        env = os.environ.copy()
+        env["PYTHONUTF8"] = "1"
+        env["PYTHONIOENCODING"] = "utf-8"
+        params = StdioServerParameters(command=command, args=args, env=env)
         async with stdio_client(params) as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
