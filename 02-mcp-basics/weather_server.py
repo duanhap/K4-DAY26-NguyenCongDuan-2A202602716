@@ -15,6 +15,14 @@ Chạy trực tiếp:
     claude mcp add weather -- python /đường/dẫn/tới/weather_server.py
 """
 
+import sys
+
+if sys.stdout.encoding != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 from mcp.server.mcpserver import MCPServer
 
 mcp = MCPServer("weather")
